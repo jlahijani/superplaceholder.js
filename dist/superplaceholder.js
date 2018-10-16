@@ -1,7 +1,3 @@
-/*! superplaceholder.js - v0.1.2 - 2018-03-28
-* http://kushagragour.in/lab/superplaceholderjs/
-* Copyright (c) 2018 Kushagra Gour; Licensed CC-BY-ND-4.0 */
-
 (function() {
   var test = document.createElement('input');
   var isPlaceHolderSupported = 'placeholder' in test;
@@ -19,7 +15,7 @@
     letterDelay: 100, //milliseconds
     sentenceDelay: 1000, //milliseconds
     loop: false,
-    startOnFocus: true,
+    onFocusBehavior: 1,
     shuffle: false,
     showCursor: true,
     cursor: '|'
@@ -49,12 +45,23 @@
       }
     }
 
-    if (self.options.startOnFocus) {
+    if (self.options.onFocusBehavior && self.options.onFocusBehavior === 1) {
       self.el.addEventListener('focus', function() {
         self.processText(0);
       });
       self.el.addEventListener('blur', function() {
         self.cleanUp();
+      });
+    } else if (
+      self.options.onFocusBehavior &&
+      self.options.onFocusBehavior === 2
+    ) {
+      self.processText(0);
+      self.el.addEventListener('focus', function() {
+        self.cleanUp();
+      });
+      self.el.addEventListener('blur', function() {
+        self.processText(0);
       });
     } else {
       self.processText(0);
@@ -116,11 +123,14 @@
     });
   };
 
-  var superplaceholder = function(params) {
-    if (!isPlaceHolderSupported) {
-      return;
-    }
-    new PlaceHolder(params.el, params.sentences, params.options);
+  var superplaceholder = {
+    new: function(params) {
+      if (!isPlaceHolderSupported) {
+        return;
+      }
+      new PlaceHolder(params.el, params.sentences, params.options);
+    },
+    FocusBehavior: Object.freeze({ START: 1, STOP: 2, DO_NOTHING: 3 })
   };
 
   // open to the world.
